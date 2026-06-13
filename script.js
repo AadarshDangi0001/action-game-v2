@@ -23,6 +23,7 @@ let highestBidder = null; // Index of the highest bidder (null, 0, or 1)
 let auctionQueue = [];
 let totalPlayersCount = 0;
 let auctionLogs = [];
+let maxPlayerLimit = 0;
 
 // --- DOM Elements ---
 // Screens
@@ -165,6 +166,13 @@ function initAuction() {
   auctionQueue = shuffleArray([...players]);
   totalPlayersCount = auctionQueue.length;
   auctionLogs = []; // Reset logs
+
+  // Calculate Max Player Limit: Even -> N/2, Odd -> Math.floor(N/2) + 1
+  if (totalPlayersCount % 2 === 0) {
+    maxPlayerLimit = totalPlayersCount / 2;
+  } else {
+    maxPlayerLimit = Math.floor(totalPlayersCount / 2) + 1;
+  }
 
   addLog(`Auction started by ${captains[0].name} and ${captains[1].name}!`, 'info');
   addLog(`${totalPlayersCount} players loaded and shuffled randomly.`, 'info');
@@ -333,6 +341,7 @@ function restartGame() {
   auctionQueue = [];
   totalPlayersCount = 0;
   auctionLogs = [];
+  maxPlayerLimit = 0;
 
   // Hide Game and GameOver Overlays, Show Setup Screen
   gameScreen.classList.add('hidden');
@@ -358,11 +367,11 @@ function updateUI() {
   // Sync Captains cards texts
   cap0NameDisplay.textContent = captains[0].name;
   cap0BountyDisplay.textContent = captains[0].bounty;
-  cap0TeamSizeDisplay.textContent = `${captains[0].team.length} ${captains[0].team.length === 1 ? 'Player' : 'Players'}`;
+  cap0TeamSizeDisplay.textContent = `${captains[0].team.length} / ${maxPlayerLimit} Players`;
 
   cap1NameDisplay.textContent = captains[1].name;
   cap1BountyDisplay.textContent = captains[1].bounty;
-  cap1TeamSizeDisplay.textContent = `${captains[1].team.length} ${captains[1].team.length === 1 ? 'Player' : 'Players'}`;
+  cap1TeamSizeDisplay.textContent = `${captains[1].team.length} / ${maxPlayerLimit} Players`;
 
   // Update Bounty Bars (out of 1000)
   const cap0Pct = Math.max(0, (captains[0].bounty / 1000) * 100);
@@ -406,13 +415,14 @@ function updateUI() {
   }
 
   // Validate and update bid button controls
+  const hasReachedLimit = activeCaptain.team.length >= maxPlayerLimit;
   let hasValidBid = false;
   bidButtons.forEach(button => {
     const increment = parseInt(button.getAttribute('data-bid'), 10);
     const cost = currentBid + increment;
 
-    // Check if current active captain can afford it
-    if (cost > activeCaptain.bounty) {
+    // Check if current active captain can afford it AND has not reached team limit
+    if (cost > activeCaptain.bounty || hasReachedLimit) {
       button.disabled = true;
     } else {
       button.disabled = false;
@@ -420,8 +430,12 @@ function updateUI() {
     }
   });
 
-  // Display Insufficient Bounty Warning
-  if (!hasValidBid) {
+  // Display warnings (limit reached or insufficient bounty)
+  if (hasReachedLimit) {
+    bountyWarning.textContent = `⚠️ Maximum player limit reached (${maxPlayerLimit})! You must release.`;
+    bountyWarning.classList.remove('hidden');
+  } else if (!hasValidBid) {
+    bountyWarning.textContent = `⚠️ Warning: Insufficient bounty for this bid!`;
     bountyWarning.classList.remove('hidden');
   } else {
     bountyWarning.classList.add('hidden');

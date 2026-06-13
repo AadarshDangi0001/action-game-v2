@@ -230,6 +230,17 @@ button {
   resize: vertical;
 }
 
+.field-hint {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  line-height: 1.45;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 2px solid var(--arena-primary);
+}
+
 #btn-start {
   width: 100%;
   margin-top: 10px;
@@ -998,6 +1009,19 @@ button {
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+  
+  /* Position Auction Arena first on stacked screens */
+  .auction-arena {
+    order: 1;
+  }
+  
+  #captain-0-card {
+    order: 2;
+  }
+  
+  #captain-1-card {
+    order: 3;
   }
   
   .captain-panel {
