@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cricket Player Auction Game</title>
+  <!-- Google Fonts - Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- ==================== SETUP SCREEN ==================== -->
+    <main id="setup-screen" class="setup-container">
+      <div class="glass-card setup-card">
+        <div class="logo-area">
+          <div class="cricket-ball-icon">🏏</div>
+          <h1>CRICKET AUCTION</h1>
+          <p class="subtitle">Assemble Your Dream Team</p>
+        </div>
+        
+        <form id="setup-form" onsubmit="event.preventDefault();">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cap1-name">Captain 1 Name</label>
+              <input type="text" id="cap1-name" placeholder="Enter Captain 1 Name" required value="Captain Alpha">
+            </div>
+            <div class="form-group">
+              <label for="cap2-name">Captain 2 Name</label>
+              <input type="text" id="cap2-name" placeholder="Enter Captain 2 Name" required value="Captain Beta">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="players-input">Players List (One per line)</label>
+            <textarea id="players-input" rows="10" placeholder="Enter players here, one per line..." required>Virat Kohli
+MS Dhoni
+Sachin Tendulkar
+AB de Villiers
+Kane Williamson
+Rohit Sharma
+Jasprit Bumrah
+Mitchell Starc
+Ben Stokes
+Rashid Khan
+Steve Smith
+Babar Azam
+Hardik Pandya
+Pat Cummins
+Travis Head</textarea>
+          </div>
+          
+          <button type="button" id="btn-start" class="btn-primary btn-glow">Start Auction</button>
+        </form>
+      </div>
+    </main>
+
+    <!-- ==================== GAME SCREEN ==================== -->
+    <main id="game-screen" class="game-container hidden">
+      <!-- Top Navigation Header -->
+      <header class="game-header glass-card">
+        <div class="header-logo">
+          <span class="icon">🏏</span>
+          <h2>Cricket Auction Dashboard</h2>
+        </div>
+        <div class="header-stats">
+          <div class="stat-badge">
+            <span class="label">Remaining Players</span>
+            <span id="remaining-count" class="value">0</span>
+          </div>
+        </div>
+        <button id="btn-header-restart" class="btn-secondary">Restart Game</button>
+      </header>
+
+      <!-- Main Dashboard Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Left Panel - Captain 1 -->
+        <aside id="captain-0-card" class="captain-panel glass-card captain-one">
+          <div class="captain-badge">CAPTAIN 1</div>
+          <h3 id="cap0-display-name" class="captain-name">Captain 1</h3>
+          
+          <div class="bounty-wrapper">
+            <div class="bounty-header">
+              <span class="label">Bounty Points</span>
+              <span id="cap0-bounty" class="bounty-value">1000</span>
+            </div>
+            <div class="bounty-bar-bg">
+              <div id="cap0-bounty-bar" class="bounty-bar-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <div class="team-stat">
+            <span>Team Size:</span>
+            <span id="cap0-team-size" class="highlight-text">0 Players</span>
+          </div>
+
+          <div class="team-list-container">
+            <h4>Roster</h4>
+            <ul id="cap0-team-list" class="roster-list">
+              <!-- Dynamically populated -->
+              <li class="empty-roster-msg">No players drafted yet</li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Center Panel - Bidding Arena -->
+        <section class="auction-arena glass-card">
+          <div class="arena-header">
+            <div id="turn-indicator" class="turn-banner">
+              Captain 1's Turn to Bid
+            </div>
+          </div>
+
+          <!-- Active Player Card -->
+          <div class="player-card-wrapper">
+            <div class="player-glow-effect"></div>
+            <div class="player-card">
+              <div class="jersey-graphic">
+                <span class="jersey-icon">👕</span>
+              </div>
+              <div class="player-details">
+                <p class="card-label">CURRENT PLAYER FOR BID</p>
+                <h2 id="current-player-name" class="player-name">Virat Kohli</h2>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bid Board -->
+          <div class="bid-board">
+            <div class="bid-stat">
+              <span class="label">Current Bid</span>
+              <span id="current-bid-display" class="bid-value">0</span>
+            </div>
+            <div class="bid-stat">
+              <span class="label">Highest Bidder</span>
+              <span id="highest-bidder-display" class="bidder-name">None</span>
+            </div>
+          </div>
+
+          <!-- Warning Banner -->
+          <div id="bounty-warning" class="warning-banner hidden">
+            ⚠️ Warning: Insufficient bounty for this bid!
+          </div>
+
+          <!-- Controls -->
+          <div class="auction-controls">
+            <div class="bid-buttons">
+              <button class="btn-bid" data-bid="10">+10</button>
+              <button class="btn-bid" data-bid="20">+20</button>
+              <button class="btn-bid" data-bid="50">+50</button>
+              <button class="btn-bid" data-bid="100">+100</button>
+            </div>
+            <button id="btn-release" class="btn-danger btn-glow">Release Player</button>
+          </div>
+        </section>
+
+        <!-- Right Panel - Captain 2 -->
+        <aside id="captain-1-card" class="captain-panel glass-card captain-two">
+          <div class="captain-badge">CAPTAIN 2</div>
+          <h3 id="cap1-display-name" class="captain-name">Captain 2</h3>
+          
+          <div class="bounty-wrapper">
+            <div class="bounty-header">
+              <span class="label">Bounty Points</span>
+              <span id="cap1-bounty" class="bounty-value">1000</span>
+            </div>
+            <div class="bounty-bar-bg">
+              <div id="cap1-bounty-bar" class="bounty-bar-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <div class="team-stat">
+            <span>Team Size:</span>
+            <span id="cap1-team-size" class="highlight-text">0 Players</span>
+          </div>
+
+          <div class="team-list-container">
+            <h4>Roster</h4>
+            <ul id="cap1-team-list" class="roster-list">
+              <!-- Dynamically populated -->
+              <li class="empty-roster-msg">No players drafted yet</li>
+            </ul>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- Bottom Panel (Queue + Logs) -->
+      <footer class="bottom-panel-grid">
+        <!-- Upcoming Queue -->
+        <div class="queue-panel glass-card">
+          <h3>Upcoming Queue (Next 5)</h3>
+          <div id="upcoming-queue" class="queue-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Activity Logs -->
+        <div class="logs-panel glass-card">
+          <h3>Live Auction Log</h3>
+          <div id="logs-container" class="logs-content">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ==================== GAME OVER SCREEN ==================== -->
+    <div id="game-over-screen" class="modal-overlay hidden">
+      <div class="glass-card game-over-card">
+        <div class="trophy-icon">🏆</div>
+        <h1>AUCTION COMPLETED</h1>
+        <h2 id="auction-winner-announcement" class="winner-title">Captain Alpha Wins the Auction!</h2>
+        
+        <div class="summary-comparison">
+          <!-- Captain 1 Summary -->
+          <div class="summary-card cap-one">
+            <h3 id="go-cap0-name">Captain 1</h3>
+            <div class="summary-stat">
+              <span class="label">Players Drafted:</span>
+              <span id="go-cap0-count" class="val">0</span>
+            </div>
+            <div class="summary-stat">
+              <span class="label">Bounty Remaining:</span>
+              <span id="go-cap0-bounty" class="val">1000</span>
+            </div>
+            <div class="summary-roster">
+              <h4>Final Team</h4>
+              <ul id="go-cap0-list" class="final-roster-list"></ul>
+            </div>
+          </div>
+
+          <!-- Captain 2 Summary -->
+          <div class="summary-card cap-two">
+            <h3 id="go-cap1-name">Captain 2</h3>
+            <div class="summary-stat">
+              <span class="label">Players Drafted:</span>
+              <span id="go-cap1-count" class="val">0</span>
+            </div>
+            <div class="summary-stat">
+              <span class="label">Bounty Remaining:</span>
+              <span id="go-cap1-bounty" class="val">1000</span>
+            </div>
+            <div class="summary-roster">
+              <h4>Final Team</h4>
+              <ul id="go-cap1-list" class="final-roster-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-restart-game" class="btn-primary btn-glow">Play Again</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Script -->
+  <script src="script.js"></script>
+</body>
+</html>
